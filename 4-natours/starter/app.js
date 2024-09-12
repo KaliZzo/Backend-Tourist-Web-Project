@@ -1,7 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
+const appErorr = require('./utils/appError');
+const globalErrorHandler = require('./Controllers/errorController');
 const tourRouter = require('./Routes/tourRoutes');
 const userRouter = require('./Routes/userRoutes');
+const AppError = require('./utils/appError');
 
 const app = express();
 
@@ -23,8 +26,27 @@ app.use((req, res, next) => {
   next();
 });
 
+//Routes
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+// MIddleware that must to be in the end of the routes and probably most of the code becasue if I will add it on the top none of the routes
+//will not works
+
+// app.all('*', (req, res, next) => {
+//   res.status(404).json({
+//     status: 'failed',
+//     message: `Cant find ${req.originalUrl} on this Server`,
+//   });
+
+//   next();
+// });
+
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this Server!`, 404));
+});
+
+app.use(globalErrorHandler);
 
 // 4) START SERVER
 
