@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema({
   passwordConfrim: {
     type: String,
     required: [true, 'Please confrim your passowrd'],
+    validate: {
+      //This only works CREATE() OR SAVE()
+      validator: function (el) {
+        return el === this.password;
+      },
+    },
   },
 });
 
