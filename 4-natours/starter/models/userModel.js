@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const { default: isEmail } = require('validator/lib/isEmail');
 const validator = require('validator');
@@ -46,6 +47,13 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  passwordResetToken: {
+    type: String,
+  },
+  passwordResetExpires: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -78,6 +86,21 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
   }
   //Flase means not changed
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
