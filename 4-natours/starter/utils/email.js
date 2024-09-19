@@ -16,6 +16,7 @@ const sendEmail = async (options) => {
     to: options.email,
     subject: options.subject,
     text: options.text,
+    html: options.html, // added ()
   };
   //3)Actully send the email with Nodemailer
   await transporter.sendMail(mailOptions);
