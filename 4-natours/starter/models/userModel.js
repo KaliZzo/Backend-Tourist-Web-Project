@@ -54,6 +54,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -66,6 +71,12 @@ userSchema.pre('save', async function (next) {
   this.passwordConfrim = undefined;
   next();
 });
+
+userSchema.pre(/^find/, function (next) {
+  //this points to the current query
+  this.find({ active: { $ne: false } }); // not equal to flase instead of active:true
+  next();
+}); //query middelware
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || this.isNew) return next();
